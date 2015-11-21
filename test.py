@@ -1,3 +1,4 @@
+from __future__ import print_function
 import ctypes
 gp = ctypes.CDLL('libgphoto2.dylib')
 print(gp)

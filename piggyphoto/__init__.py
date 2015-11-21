@@ -1,3 +1,4 @@
+from __future__ import print_function
 # piggyphoto.py
 # Copyright (C) 2010 Alex Dumitrache
 # Copyright (C) 2012, 2013 Marian Beermann
@@ -433,6 +434,12 @@ class CameraFile(object):
         file.write(self.to_pixbuf())
         file.close()
 
+    def get_data(self):
+        data = ctypes.pointer(ctypes.c_char())
+        size = ctypes.c_ulong()
+        _check_result(gp.gp_file_get_data_and_size(self._cf, ctypes.byref(data), ctypes.byref(size)))
+        return ctypes.string_at(data, size.value)
+
     def ref(self):
         _check_result(gp.gp_file_ref(self._cf))
 
@@ -445,11 +452,26 @@ class CameraFile(object):
     def copy(self, source):
         _check_result(gp.gp_file_copy(self._cf, source._cf))
 
+    @property
+    def mimetype(self):
+        mimetype = ctypes.c_char_p()
+        gp.gp_file_get_mime_type(self._cf, ctypes.byref(mimetype))
+        return ctypes.string_at(mimetype)
+
+    @property
+    def size(self):
+        data = ctypes.c_char_p()
+        size = ctypes.c_ulong()
+        gp.gp_file_get_data_and_size(self._cf, ctypes.byref(data),
+                                     ctypes.byref(size))
+
+        return size.value
+
     # do we need this?
     def to_pixbuf(self):
         mimetype = ctypes.c_char_p()
         gp.gp_file_get_mime_type(self._cf, ctypes.byref(mimetype))
-        print(ctypes.string_at(mimetype))
+        # print(ctypes.string_at(mimetype))
         
         """Returns data for GdkPixbuf.PixbufLoader.write()."""
         data = ctypes.c_char_p()
@@ -457,7 +479,7 @@ class CameraFile(object):
         gp.gp_file_get_data_and_size(self._cf, ctypes.byref(data),
                                      ctypes.byref(size))
                                      
-        print(size.value)
+        # print(size.value)
         return ctypes.string_at(data, size.value)
 
     def __dealoc__(self, filename):
@@ -932,7 +954,7 @@ class CameraWidget(object):
                         count += 1
 
                 if count == len(r):
-                    print(" "*55, "[%s … %s]" % (lower, upper))
+                    print(" " * 55, "[%s .. %s]" % (lower, upper))
                 else:
                     print(str(self.choices))
             else:

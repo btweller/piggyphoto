@@ -1,3 +1,4 @@
+from __future__ import print_function
 import piggyphoto
 from pprint import pprint
 C = piggyphoto.Camera()
