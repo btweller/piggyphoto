@@ -373,6 +373,9 @@ class Camera(object):
         cfile.save(destpath)
         gp.gp_file_unref(cfile._cf)
 
+    def delete_all_files_from_folder(self, folder):
+        gp.gp_camera_folder_delete_all(self._cam, folder, context)
+
     def trigger_capture(self):
         _check_result(gp.gp_camera_trigger_capture(self._cam, context))
 
@@ -665,10 +668,14 @@ class CameraList(object):
         return header + '\n'.join(contents)
 
     def toList(self):
-        return [(self.get_name(i), self.get_value(i)) for i in range(self.count())]
+        #return [(self.get_name(i), self.get_value(i)) for i in range(self.count())]
         xlist = []
         for i in range(self.count()):
-            n, v = self.get_name(i), self.get_value(i)
+            n = self.get_name(i)
+            try:
+		v = self.get_value(i)
+	    except AttributeError:
+                v = None
             if v is None:
                 xlist.append(n)
             else:
